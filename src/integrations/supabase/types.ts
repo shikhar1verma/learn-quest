@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      admins: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          actor: string | null
+          after: Json | null
+          before: Json | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
@@ -305,18 +353,21 @@ export type Database = {
       }
       rules: {
         Row: {
+          active: boolean | null
           id: string
           name: string
           rules_json: Json
           updated_at: string
         }
         Insert: {
+          active?: boolean | null
           id?: string
           name: string
           rules_json: Json
           updated_at?: string
         }
         Update: {
+          active?: boolean | null
           id?: string
           name?: string
           rules_json?: Json
@@ -472,6 +523,30 @@ export type Database = {
           longest_streak: number
           freeze_tokens: number
         }[]
+      }
+      is_admin: {
+        Args: { uid: string }
+        Returns: boolean
+      }
+      log_audit: {
+        Args: {
+          p_action: string
+          p_entity: string
+          p_entity_id?: string
+          p_before?: Json
+          p_after?: Json
+        }
+        Returns: string
+      }
+      simulate_xp: {
+        Args: {
+          p_base_xp: number
+          p_difficulty?: string
+          p_class_aligned?: boolean
+          p_social_proof?: boolean
+          p_first_time?: boolean
+        }
+        Returns: Json
       }
     }
     Enums: {

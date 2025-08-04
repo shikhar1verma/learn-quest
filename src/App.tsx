@@ -14,6 +14,12 @@ import Store from "./pages/Store";
 import Analytics from "./pages/Analytics";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import { AdminGuard } from "@/components/admin/AdminGuard";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminRules from "./pages/admin/AdminRules";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAudit from "./pages/admin/AdminAudit";
 
 const queryClient = new QueryClient();
 
@@ -70,12 +76,38 @@ const App = () => (
             } />
             <Route path="/admin" element={
               <ProtectedRoute>
-                <AppLayout>
-                  <div className="text-center py-20">
-                    <h1 className="text-2xl font-bold mb-4">Admin Panel Coming Soon</h1>
-                    <p className="text-muted-foreground">Configure rules and manage the economy</p>
-                  </div>
-                </AppLayout>
+                <AdminGuard>
+                  <AdminLayout>
+                    <AdminOverview />
+                  </AdminLayout>
+                </AdminGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/rules" element={
+              <ProtectedRoute>
+                <AdminGuard>
+                  <AdminLayout>
+                    <AdminRules />
+                  </AdminLayout>
+                </AdminGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute>
+                <AdminGuard>
+                  <AdminLayout>
+                    <AdminUsers />
+                  </AdminLayout>
+                </AdminGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/audit" element={
+              <ProtectedRoute>
+                <AdminGuard>
+                  <AdminLayout>
+                    <AdminAudit />
+                  </AdminLayout>
+                </AdminGuard>
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />
