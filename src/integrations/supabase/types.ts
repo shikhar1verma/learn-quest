@@ -14,13 +14,465 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          created_at: string
+          difficulty: string
+          evidence_url: string | null
+          id: string
+          notes: string | null
+          profile_id: string
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: string
+          evidence_url?: string | null
+          id?: string
+          notes?: string | null
+          profile_id: string
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          evidence_url?: string | null
+          id?: string
+          notes?: string | null
+          profile_id?: string
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freeze_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          profile_id: string
+          reason: string | null
+          redeemed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          profile_id: string
+          reason?: string | null
+          redeemed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          profile_id?: string
+          reason?: string | null
+          redeemed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freeze_tokens_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_classes: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          active_class: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_class?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_class?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_active_class_fkey"
+            columns: ["active_class"]
+            isOneToOne: false
+            referencedRelation: "player_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchases: {
+        Row: {
+          cost_xp: number
+          created_at: string
+          id: string
+          profile_id: string
+          redeemed_at: string | null
+          redemption_note: string | null
+          reward_id: string
+        }
+        Insert: {
+          cost_xp: number
+          created_at?: string
+          id?: string
+          profile_id: string
+          redeemed_at?: string | null
+          redemption_note?: string | null
+          reward_id: string
+        }
+        Update: {
+          cost_xp?: number
+          created_at?: string
+          id?: string
+          profile_id?: string
+          redeemed_at?: string | null
+          redemption_note?: string | null
+          reward_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quest_checklist: {
+        Row: {
+          created_at: string
+          id: string
+          is_done: boolean
+          label: string
+          quest_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_done?: boolean
+          label: string
+          quest_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_done?: boolean
+          label?: string
+          quest_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quest_checklist_quest_id_fkey"
+            columns: ["quest_id"]
+            isOneToOne: false
+            referencedRelation: "quests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quests: {
+        Row: {
+          base_xp: number
+          class_id: string
+          created_at: string
+          description: string | null
+          difficulty: string
+          due_at: string | null
+          id: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          base_xp: number
+          class_id: string
+          created_at?: string
+          description?: string | null
+          difficulty: string
+          due_at?: string | null
+          id?: string
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          base_xp?: number
+          class_id?: string
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          due_at?: string | null
+          id?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quests_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "player_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rewards: {
+        Row: {
+          cooldown_days: number
+          cost_xp: number
+          created_at: string
+          description: string | null
+          id: string
+          prerequisite_json: Json
+          title: string
+        }
+        Insert: {
+          cooldown_days?: number
+          cost_xp: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          prerequisite_json?: Json
+          title: string
+        }
+        Update: {
+          cooldown_days?: number
+          cost_xp?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          prerequisite_json?: Json
+          title?: string
+        }
+        Relationships: []
+      }
+      rules: {
+        Row: {
+          id: string
+          name: string
+          rules_json: Json
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          rules_json: Json
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          rules_json?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      skills: {
+        Row: {
+          class_id: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          slug: string
+          tier: number
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          slug: string
+          tier: number
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          slug?: string
+          tier?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skills_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "player_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skills_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      streaks: {
+        Row: {
+          best: number
+          current: number
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          best?: number
+          current?: number
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          best?: number
+          current?: number
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "streaks_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xp_transactions: {
+        Row: {
+          base_xp: number
+          created_at: string
+          id: string
+          multiplier: number
+          notes: string | null
+          profile_id: string
+          source: string
+          source_id: string | null
+          total_xp: number | null
+        }
+        Insert: {
+          base_xp: number
+          created_at?: string
+          id?: string
+          multiplier?: number
+          notes?: string | null
+          profile_id: string
+          source: string
+          source_id?: string | null
+          total_xp?: number | null
+        }
+        Update: {
+          base_xp?: number
+          created_at?: string
+          id?: string
+          multiplier?: number
+          notes?: string | null
+          profile_id?: string
+          source?: string
+          source_id?: string | null
+          total_xp?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xp_transactions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      apply_xp: {
+        Args: {
+          p_profile_id: string
+          p_source: string
+          p_source_id: string
+          p_base_xp: number
+          p_context?: Json
+        }
+        Returns: string
+      }
+      get_profile_stats: {
+        Args: { p_profile_id: string }
+        Returns: {
+          total_xp: number
+          current_level: number
+          xp_to_next_level: number
+          xp_progress: number
+          today_xp: number
+          current_streak: number
+          longest_streak: number
+          freeze_tokens: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
