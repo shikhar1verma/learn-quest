@@ -4,95 +4,42 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
 import { 
   Target, 
   Swords, 
   Crown, 
   Calendar,
-  Clock,
   CheckCircle,
   PlayCircle,
   PauseCircle
 } from "lucide-react"
-import type { Quest, QuestType } from "@/types/database"
+import { useQuests, useUpdateQuestStatus, useCompleteQuest } from "@/hooks/useQuests"
+import { toast } from "sonner"
 
-// Mock quest data
-const mockQuests: Quest[] = [
-  {
-    id: '1',
-    class_id: '1',
-    type: 'primary',
-    title: 'Build a RAG System with LangChain',
-    description: 'Create a retrieval-augmented generation system using LangChain and vector embeddings',
-    checklists: ['Set up vector database', 'Implement document chunking', 'Create retrieval pipeline', 'Build chat interface'],
-    estimated_xp: 120,
-    status: 'not_started',
-    tags: ['langchain', 'rag', 'ai'],
-    difficulty: 'hard',
-    prerequisites: [],
-    timebox_minutes: 480,
-    evidence_required: true,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  },
-  {
-    id: '2',
-    class_id: '1',
-    type: 'side',
-    title: 'Write Prompt Engineering Guide',
-    description: 'Create a comprehensive guide on advanced prompt engineering techniques',
-    checklists: ['Research current techniques', 'Draft content structure', 'Write guide', 'Add code examples'],
-    estimated_xp: 60,
-    status: 'active',
-    tags: ['prompting', 'content', 'ai'],
-    difficulty: 'medium',
-    prerequisites: [],
-    timebox_minutes: 240,
-    evidence_required: false,
-    started_at: '2024-01-02',
-    created_at: '2024-01-01',
-    updated_at: '2024-01-02'
-  },
-  {
-    id: '3',
-    class_id: '1',
-    type: 'boss',
-    title: 'Launch AI SaaS MVP',
-    description: 'Build and deploy a complete AI-powered SaaS application',
-    checklists: ['Design architecture', 'Build backend API', 'Create frontend', 'Set up payments', 'Deploy to production'],
-    estimated_xp: 300,
-    status: 'not_started',
-    tags: ['saas', 'fullstack', 'deployment'],
-    difficulty: 'hard',
-    prerequisites: [],
-    timebox_minutes: 2400,
-    evidence_required: true,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01'
-  }
-]
-
-const getQuestIcon = (type: QuestType) => {
+const getQuestIcon = (type: string) => {
   switch (type) {
     case 'primary': return Target
     case 'side': return Swords
     case 'boss': return Crown
     case 'weekly': return Calendar
+    default: return Target
   }
 }
 
-const getQuestColor = (type: QuestType) => {
+const getQuestColor = (type: string) => {
   switch (type) {
     case 'primary': return 'quest-primary'
     case 'side': return 'quest-side'
     case 'boss': return 'quest-boss'
     case 'weekly': return 'quest-weekly'
+    default: return 'quest-primary'
   }
 }
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'completed': return 'bg-xp/20 text-xp'
+    case 'done': return 'bg-xp/20 text-xp'
     case 'active': return 'bg-blue-500/20 text-blue-400'
     case 'paused': return 'bg-orange-500/20 text-orange-400'
     default: return 'bg-muted text-muted-foreground'
@@ -110,21 +57,74 @@ const getDifficultyColor = (difficulty: string) => {
 
 export default function Quests() {
   const [activeTab, setActiveTab] = useState('primary')
+  const { data: quests, isLoading, error } = useQuests()
+  const updateQuestStatus = useUpdateQuestStatus()
+  const completeQuest = useCompleteQuest()
   
-  const getQuestsByType = (type: QuestType) => {
-    return mockQuests.filter(quest => quest.type === type)
+  const getQuestsByType = (type: string) => {
+    return quests?.filter(quest => quest.type === type) || []
   }
 
-  const getProgress = (quest: Quest) => {
-    if (quest.status === 'completed') return 100
-    if (quest.status === 'not_started') return 0
-    // Mock progress for active quests
-    return 35
+  const getProgress = (quest: any) => {
+    if (quest.status === 'done') return 100
+    if (quest.status === 'planned') return 0
+    const completedItems = quest.quest_checklist?.filter((item: any) => item.is_done).length || 0
+    const totalItems = quest.quest_checklist?.length || 1
+    return Math.round((completedItems / totalItems) * 100)
+  }
+
+  const handleStatusChange = async (questId: string, newStatus: string) => {
+    try {
+      await updateQuestStatus.mutateAsync({ questId, status: newStatus })
+      toast.success(`Quest ${newStatus}`)
+    } catch (error) {
+      toast.error(`Failed to ${newStatus} quest`)
+    }
+  }
+
+  const handleCompleteQuest = async (questId: string) => {
+    try {
+      await completeQuest.mutateAsync({ 
+        questId, 
+        evidenceUrl: '', 
+        notes: 'Quest completed via UI' 
+      })
+      toast.success('Quest completed! XP awarded.')
+    } catch (error) {
+      toast.error('Failed to complete quest')
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Quests</h1>
+          <p className="text-muted-foreground">Choose your next challenge and level up your skills</p>
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Target className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold">Unable to load quests</h3>
+          <p className="text-muted-foreground">Please try again later</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Quests</h1>
@@ -135,22 +135,21 @@ export default function Quests() {
         </Button>
       </div>
 
-      {/* Quest Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-card">
-          <TabsTrigger value="primary" className="data-[state=active]:bg-quest-primary/20 data-[state=active]:text-quest-primary">
+          <TabsTrigger value="primary">
             <Target className="mr-2 h-4 w-4" />
             Primary
           </TabsTrigger>
-          <TabsTrigger value="side" className="data-[state=active]:bg-quest-side/20 data-[state=active]:text-quest-side">
+          <TabsTrigger value="side">
             <Swords className="mr-2 h-4 w-4" />
             Side Quests
           </TabsTrigger>
-          <TabsTrigger value="boss" className="data-[state=active]:bg-quest-boss/20 data-[state=active]:text-quest-boss">
+          <TabsTrigger value="boss">
             <Crown className="mr-2 h-4 w-4" />
             Boss Fights
           </TabsTrigger>
-          <TabsTrigger value="weekly" className="data-[state=active]:bg-quest-weekly/20 data-[state=active]:text-quest-weekly">
+          <TabsTrigger value="weekly">
             <Calendar className="mr-2 h-4 w-4" />
             Weekly
           </TabsTrigger>
@@ -159,7 +158,7 @@ export default function Quests() {
         {['primary', 'side', 'boss', 'weekly'].map(type => (
           <TabsContent key={type} value={type} className="space-y-4">
             <div className="grid gap-4">
-              {getQuestsByType(type as QuestType).map((quest) => {
+              {getQuestsByType(type).length > 0 ? getQuestsByType(type).map((quest) => {
                 const Icon = getQuestIcon(quest.type)
                 const progress = getProgress(quest)
                 
@@ -168,8 +167,8 @@ export default function Quests() {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3">
-                          <div className={`w-10 h-10 rounded-lg bg-${getQuestColor(quest.type)}/20 flex items-center justify-center`}>
-                            <Icon className={`h-5 w-5 text-${getQuestColor(quest.type)}`} />
+                          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                            <Icon className="h-5 w-5 text-primary" />
                           </div>
                           <div className="space-y-1">
                             <CardTitle className="text-lg">{quest.title}</CardTitle>
@@ -182,31 +181,40 @@ export default function Quests() {
                                 {quest.difficulty}
                               </Badge>
                               <Badge variant="outline" className="border-xp/30 text-xp">
-                                {quest.estimated_xp} XP
+                                {quest.base_xp} XP
                               </Badge>
-                              {quest.timebox_minutes && (
-                                <Badge variant="outline" className="text-muted-foreground">
-                                  <Clock className="mr-1 h-3 w-3" />
-                                  {Math.floor(quest.timebox_minutes / 60)}h {quest.timebox_minutes % 60}m
-                                </Badge>
-                              )}
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {quest.status === 'not_started' && (
-                            <Button size="sm" className="bg-gradient-primary">
+                          {quest.status === 'planned' && (
+                            <Button 
+                              size="sm" 
+                              className="bg-gradient-primary"
+                              onClick={() => handleStatusChange(quest.id, 'active')}
+                              disabled={updateQuestStatus.isPending}
+                            >
                               <PlayCircle className="mr-2 h-4 w-4" />
                               Start
                             </Button>
                           )}
                           {quest.status === 'active' && (
                             <>
-                              <Button size="sm" variant="outline">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleStatusChange(quest.id, 'paused')}
+                                disabled={updateQuestStatus.isPending}
+                              >
                                 <PauseCircle className="mr-2 h-4 w-4" />
                                 Pause
                               </Button>
-                              <Button size="sm" className="bg-xp text-xp-foreground">
+                              <Button 
+                                size="sm" 
+                                className="bg-xp text-xp-foreground"
+                                onClick={() => handleCompleteQuest(quest.id)}
+                                disabled={completeQuest.isPending}
+                              >
                                 <CheckCircle className="mr-2 h-4 w-4" />
                                 Complete
                               </Button>
@@ -216,7 +224,7 @@ export default function Quests() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {quest.status !== 'not_started' && (
+                      {quest.status !== 'planned' && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">Progress</span>
@@ -225,42 +233,41 @@ export default function Quests() {
                           <Progress value={progress} className="h-2" />
                         </div>
                       )}
-                      
                       <div className="space-y-2">
                         <h4 className="text-sm font-medium text-foreground">Checklist</h4>
                         <div className="space-y-1">
-                          {quest.checklists.map((item, index) => (
-                            <div key={index} className="flex items-center gap-2 text-sm">
-                              <div className={`w-4 h-4 rounded border ${
-                                progress > (index + 1) * (100 / quest.checklists.length) 
+                          {quest.quest_checklist?.length > 0 ? quest.quest_checklist.map((item: any) => (
+                            <div key={item.id} className="flex items-center gap-2 text-sm">
+                              <div className={`w-4 h-4 rounded border cursor-pointer ${
+                                item.is_done 
                                   ? 'bg-xp border-xp' 
-                                  : 'border-muted-foreground'
+                                  : 'border-muted-foreground hover:border-primary'
                               }`} />
                               <span className={
-                                progress > (index + 1) * (100 / quest.checklists.length) 
+                                item.is_done 
                                   ? 'line-through text-muted-foreground' 
                                   : 'text-foreground'
                               }>
-                                {item}
+                                {item.label}
                               </span>
                             </div>
-                          ))}
+                          )) : (
+                            <p className="text-sm text-muted-foreground">No checklist items</p>
+                          )}
                         </div>
                       </div>
-
-                      {quest.tags.length > 0 && (
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {quest.tags.map((tag) => (
-                            <Badge key={tag} variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
                 )
-              })}
+              }) : (
+                <Card className="p-8">
+                  <div className="text-center">
+                    <Target className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold">No {type} quests available</h3>
+                    <p className="text-muted-foreground">Check back later for new challenges!</p>
+                  </div>
+                </Card>
+              )}
             </div>
           </TabsContent>
         ))}
