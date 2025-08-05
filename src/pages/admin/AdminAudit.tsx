@@ -7,12 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
 export default function AdminAudit() {
-  const [entityFilter, setEntityFilter] = useState<string>("");
-  const [actionFilter, setActionFilter] = useState<string>("");
+  const [entityFilter, setEntityFilter] = useState<string>("all");
+  const [actionFilter, setActionFilter] = useState<string>("all");
 
   const { data: auditLogs = [], isLoading } = useAuditLogs({
-    entity: entityFilter || undefined,
-    action: actionFilter || undefined
+    entity: entityFilter !== "all" ? entityFilter : undefined,
+    action: actionFilter !== "all" ? actionFilter : undefined
   });
 
   const getActionColor = (action: string) => {
@@ -109,7 +109,7 @@ export default function AdminAudit() {
                   <SelectValue placeholder="Filter by entity" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All entities</SelectItem>
+                  <SelectItem value="all">All entities</SelectItem>
                   {entities.map(entity => (
                     <SelectItem key={entity} value={entity}>
                       {entity}
@@ -125,7 +125,7 @@ export default function AdminAudit() {
                   <SelectValue placeholder="Filter by action" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All actions</SelectItem>
+                  <SelectItem value="all">All actions</SelectItem>
                   {actions.map(action => (
                     <SelectItem key={action} value={action}>
                       {action}
