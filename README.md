@@ -165,6 +165,19 @@ All colors and styles are defined in the design system using HSL color space:
 - `--quest-*`: Specialized colors for different quest types
 - `--gradient-*`: Multiple gradient combinations for visual interest
 
+## 📖 Documentation
+
+For complete architecture diagrams, technical specifications, and developer guides, see the comprehensive documentation:
+
+**👉 [Complete Documentation →](./docs/README.md)**
+
+### Documentation Contents:
+- **[Database Schema](./docs/database-schema.md)** - Complete database design and relationships
+- **[Application Architecture](./docs/application-architecture.md)** - Technical stack and component structure  
+- **[User Journey Flows](./docs/user-journey-flows.md)** - How users interact with the system
+- **[XP & Gamification System](./docs/xp-gamification-system.md)** - Detailed gamification mechanics
+- **[Quick Reference](./docs/quick-reference.md)** - Essential information at a glance
+
 ## 🚀 Deployment
 
 ### Quick Deploy with Lovable

@@ -20,6 +20,9 @@ import AdminOverview from "./pages/admin/AdminOverview";
 import AdminRules from "./pages/admin/AdminRules";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAudit from "./pages/admin/AdminAudit";
+import AdminQuests from "./pages/admin/AdminQuests";
+import AdminSkills from "./pages/admin/AdminSkills";
+import AdminStore from "./pages/admin/AdminStore";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +109,33 @@ const App = () => (
                 <AdminGuard>
                   <AdminLayout>
                     <AdminAudit />
+                  </AdminLayout>
+                </AdminGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/quests" element={
+              <ProtectedRoute>
+                <AdminGuard>
+                  <AdminLayout>
+                    <AdminQuests />
+                  </AdminLayout>
+                </AdminGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/skills" element={
+              <ProtectedRoute>
+                <AdminGuard>
+                  <AdminLayout>
+                    <AdminSkills />
+                  </AdminLayout>
+                </AdminGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/store" element={
+              <ProtectedRoute>
+                <AdminGuard>
+                  <AdminLayout>
+                    <AdminStore />
                   </AdminLayout>
                 </AdminGuard>
               </ProtectedRoute>
