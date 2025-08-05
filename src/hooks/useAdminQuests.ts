@@ -28,19 +28,31 @@ export function useAdminQuests() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('quests')
-        .select(`
-          *,
-          quest_checklist (
-            id,
-            label,
-            sort_order,
-            is_done
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as AdminQuest[];
+      
+      // Get checklist items separately for now due to column issues
+      const questsWithChecklists = await Promise.all(
+        (data || []).map(async (quest) => {
+          const { data: checklist } = await supabase
+            .from('quest_checklist')
+            .select('id, label, is_done')
+            .eq('quest_id', quest.id)
+            .order('created_at');
+          
+          return {
+            ...quest,
+            quest_checklist: checklist?.map(item => ({
+              ...item,
+              sort_order: 0 // Default value for now
+            })) || []
+          };
+        })
+      );
+      
+      return questsWithChecklists as AdminQuest[];
     }
   });
 }

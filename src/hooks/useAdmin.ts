@@ -29,13 +29,13 @@ export function useAdminStats() {
         { count: totalQuests },
         { count: totalRewards },
         { data: activeRules },
-        { data: todayXP },
-        { data: weekXP }
+        todayXPResult,
+        weekXPResult
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('quests').select('*', { count: 'exact', head: true }),
         supabase.from('rewards').select('*', { count: 'exact', head: true }),
-        supabase.from('rules').select('name').eq('active', true).single(),
+        supabase.from('rules').select('name').eq('active', true).maybeSingle(),
         supabase.rpc('get_total_xp_today'),
         supabase.rpc('get_total_xp_week')
       ]);
@@ -45,8 +45,8 @@ export function useAdminStats() {
         totalQuests: totalQuests || 0,
         totalRewards: totalRewards || 0,
         activeRuleset: activeRules?.name || 'None',
-        todayXP: todayXP || 0,
-        weekXP: weekXP || 0
+        todayXP: todayXPResult.data || 0,
+        weekXP: weekXPResult.data || 0
       };
     },
     enabled: true
@@ -57,17 +57,25 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Get all profiles first
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          admins!left(user_id)
-        `);
+        .select('*');
       
-      if (error) throw error;
-      return data.map(profile => ({
+      if (profilesError) throw profilesError;
+
+      // Get all admins
+      const { data: admins, error: adminsError } = await supabase
+        .from('admins')
+        .select('user_id');
+      
+      if (adminsError) throw adminsError;
+
+      const adminUserIds = new Set(admins?.map(admin => admin.user_id) || []);
+      
+      return (profiles || []).map(profile => ({
         ...profile,
-        isAdmin: !!profile.admins?.user_id
+        isAdmin: adminUserIds.has(profile.user_id)
       }));
     }
   });

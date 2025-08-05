@@ -100,25 +100,25 @@ export function XPSimulator() {
           <CardContent className="pt-4">
             <div className="text-center space-y-2">
               <div className="text-2xl font-bold text-primary">
-                {result.total} XP
+                {(result as any).total} XP
               </div>
               <div className="text-sm text-muted-foreground">
-                Multiplier: {result.multiplier.toFixed(2)}x
+                Multiplier: {(result as any).multiplier?.toFixed(2)}x
               </div>
               
-              {result.breakdown && (
+              {(result as any).breakdown && (
                 <div className="text-xs space-y-1 pt-2 border-t">
                   <div className="font-medium">Breakdown:</div>
-                  <div>Base: {result.breakdown.base} XP</div>
-                  <div>Difficulty: {result.breakdown.difficulty}x</div>
-                  {result.breakdown.classAlignment && (
-                    <div>Class Alignment: {result.breakdown.classAlignment}x</div>
+                  <div>Base: {(result as any).breakdown.base} XP</div>
+                  <div>Difficulty: {(result as any).breakdown.difficulty}x</div>
+                  {(result as any).breakdown.classAlignment && (
+                    <div>Class Alignment: {(result as any).breakdown.classAlignment}x</div>
                   )}
-                  {result.breakdown.socialProof && (
-                    <div>Social Proof: {result.breakdown.socialProof}x</div>
+                  {(result as any).breakdown.socialProof && (
+                    <div>Social Proof: {(result as any).breakdown.socialProof}x</div>
                   )}
-                  {result.breakdown.novelty && (
-                    <div>First Time: {result.breakdown.novelty}x</div>
+                  {(result as any).breakdown.novelty && (
+                    <div>First Time: {(result as any).breakdown.novelty}x</div>
                   )}
                 </div>
               )}

@@ -524,6 +524,14 @@ export type Database = {
           freeze_tokens: number
         }[]
       }
+      get_total_xp_today: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_total_xp_week: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       is_admin: {
         Args: { uid: string }
         Returns: boolean
