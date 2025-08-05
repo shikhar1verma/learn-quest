@@ -36,7 +36,7 @@ flowchart TD
             Level1[Level 1: 100 XP]
             Level2[Level 2: 150 XP]
             Level3[Level 3: 200 XP]
-            LevelN[Level N: 100 + 50×(N-1)]
+            LevelN["Level N: 100 + 50×&lpar;N-1&rpar;"]
         end
     end
     
@@ -115,7 +115,7 @@ sequenceDiagram
 graph TD
     subgraph "Level Calculation"
         Start[User Current XP]
-        Formula[Level = 1 + floor((XP - 100) / 50)]
+        Formula["Level = 1 + floor&lpar;&lpar;XP - 100&rpar; ÷ 50&rpar;"]
         Calculate[Calculate Current Level]
         NextLevel[XP to Next Level]
         Progress[Progress Percentage]
@@ -127,7 +127,7 @@ graph TD
         L10[Level 10: Weekly Contracts]
         L15[Level 15: Boss Quests]
         L20[Level 20: Premium Rewards]
-        LMax[Level ∞: Prestige System]
+        LMax["Level Max: Prestige System"]
     end
     
     subgraph "Visual Indicators"
@@ -221,7 +221,7 @@ graph TB
         NoveltyBonus[First Time: +10%]
         EvidenceBonus[With Proof: +10%]
         
-        MaxMultiplier[Maximum: 1.5 × 1.2 × 1.1 × 1.1 = 2.178x]
+        MaxMultiplier["Maximum: 1.5 × 1.2 × 1.1 × 1.1 = 2.178x"]
     end
     
     P1 --> ClassBonus
